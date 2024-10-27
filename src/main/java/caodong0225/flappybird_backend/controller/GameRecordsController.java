@@ -57,8 +57,8 @@ public class GameRecordsController {
             @ApiResponse(responseCode = "200", description = "成功")
     })
     public GeneralDataResponseDTO<IPage<GameRecords>> getGameRecordsList(
-            @RequestParam(defaultValue = "1") @Min(value = 1) @Parameter(name = "current", description = "页码") Integer current,
-           @RequestParam(defaultValue = "10") @Min(value = 1) @Max(value = 100) @Parameter(name = "size", description = "每页大小") Integer size,
+            @RequestParam(defaultValue = "1") @Min(value = 1) @Parameter(name = "current", description = "页码") int current,
+           @RequestParam(defaultValue = "10") @Min(value = 1) @Max(value = 100) @Parameter(name = "size", description = "每页大小") int size,
            @RequestParam(defaultValue = "timestamp")
                @Pattern(regexp = "timestamp|score|duration")
             @Parameter(name = "sort", description = "排序字段，可选值为timestamp, score, duration")
