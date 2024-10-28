@@ -42,14 +42,33 @@
         .pagination {
             margin-top: 20px;
         }
+        /* 设置图表的大小 */
+        #score-chart {
+            width: 50%;
+            height: 400px;
+        }
+        #duration-chart {
+            width: 50%;
+            height: 400px;
+        }
+        #charts-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
     </style>
+    <!-- 引入ECharts库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <script>
         function formatRecords() {
             const rows = document.querySelectorAll("tbody tr");
+            const scoreData = [];
+            const timeData = [];
+
             rows.forEach(row => {
-                // 获取时间戳和持续时间
+                // 获取时间戳和分数
                 const timestampCell = row.children[0];
-                const durationCell = row.children[3];
+                const scoreCell = row.children[2];
 
                 // 转换时间戳
                 const timestamp = parseInt(timestampCell.textContent);
@@ -57,11 +76,47 @@
                 const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Shanghai' };
                 timestampCell.textContent = date.toLocaleString('zh-CN', options);
 
-                // 转换持续时间
-                const duration = parseInt(durationCell.textContent);
-                const durationInSeconds = (duration / 1000).toFixed(2); // 转换为秒并保留两位小数
-                durationCell.textContent = durationInSeconds;
+                // 提取分数并构建图表数据
+                const score = parseInt(scoreCell.textContent);
+                const duration = parseInt(row.children[3].textContent);
+                scoreData.push([timestamp, score]);
+                timeData.push([timestamp, duration]);
             });
+
+            renderChart(scoreData, 'score-chart', '分数');
+            renderChart(timeData, 'duration-chart', '游戏时长(秒)');
+
+        }
+
+        function renderChart(chartData, target, title) {
+            // 初始化ECharts图表
+            var chartDom = document.getElementById(target);
+            var myChart = echarts.init(chartDom);
+
+            // 图表配置
+            var option = {
+                xAxis: {
+                    type: 'time', // 时间轴类型
+                    boundaryGap: false,
+                    axisLabel: {
+                        formatter: function (value) {
+                            const date = new Date(value);
+                            return `${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: title  // 设置纵坐标名称
+                },
+                series: [
+                    {
+                        data: chartData,
+                        type: 'line'
+                    }
+                ]
+            };
+            myChart.setOption(option);
         }
 
         window.onload = formatRecords;
@@ -99,7 +154,7 @@
         <td th:text="${record.timestamp}">时间</td>
         <td th:text="${record.location}">位置</td>
         <td th:text="${record.score}">分数</td>
-        <td th:text="${record.duration}">持续时间（秒）</td>
+        <td th:text="${record.duration/1000}">持续时间（秒）</td>
     </tr>
     </tbody>
 </table>
@@ -123,5 +178,13 @@
         </a>
     </div>
 </div>
+
+<div id="charts-container">
+    <!-- 图表容器 -->
+    <div id="score-chart"></div>
+    <div id="duration-chart"></div>
+</div>
+
+
 </body>
 </html>
