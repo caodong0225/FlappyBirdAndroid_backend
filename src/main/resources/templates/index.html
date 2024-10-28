@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>游戏记录列表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .controls select, .controls input {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function formatRecords() {
+            const rows = document.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                // 获取时间戳和持续时间
+                const timestampCell = row.children[0];
+                const durationCell = row.children[2];
+
+                // 转换时间戳
+                const timestamp = parseInt(timestampCell.textContent);
+                const date = new Date(timestamp);
+                const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Shanghai' };
+                timestampCell.textContent = date.toLocaleString('zh-CN', options);
+
+                // 转换持续时间
+                const duration = parseInt(durationCell.textContent);
+                const durationInSeconds = (duration / 1000).toFixed(2); // 转换为秒并保留两位小数
+                durationCell.textContent = durationInSeconds;
+            });
+        }
+
+        window.onload = formatRecords;
+    </script>
+</head>
+<body>
+<h1>游戏记录列表</h1>
+
+<div class="controls">
+    <form th:action="@{/data}" method="get">
+        <select name="appId">
+            <option th:value="${null}">全部</option>
+            <option th:each="appId : ${appIds}" th:value="${appId}" th:text="${appId}" th:selected="${appId == currentAppId}">App ID</option>
+        </select>
+
+        <select name="order" required>
+            <option value="asc">升序</option>
+            <option value="desc" th:selected="${order == 'desc'}">降序</option>
+        </select>
+        <button type="submit">搜索</button>
+    </form>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>时间</th>
+        <th>位置</th>
+        <th>分数</th>
+        <th>持续时间（秒）</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="record : ${gameRecords}">
+        <td th:text="${record.timestamp}">时间</td>
+        <td th:text="${record.location}">位置</td>
+        <td th:text="${record.score}">分数</td>
+        <td th:text="${record.duration}">持续时间（秒）</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+    <div>
+        <p>当前页: <span th:text="${currentPage}">0</span>/<span th:text="${totalPages}">0</span></p>
+    </div>
+
+    <div>
+        <a th:href="@{/data(current=${currentPage - 1}, size=${currentSize}, appId=${currentAppId}, order=${order})}"
+           th:hidden="${currentPage == 1}"
+           style="text-decoration: none; color: inherit; margin-right: 10px;">
+            &#9664; 上一页
+        </a>
+
+        <a th:href="@{/data(current=${currentPage + 1}, size=${currentSize}, appId=${currentAppId}, order=${order})}"
+           th:hidden="${currentPage == totalPages}"
+           style="text-decoration: none; color: inherit;">
+            下一页 &#9654;
+        </a>
+    </div>
+</div>
+</body>
+</html>

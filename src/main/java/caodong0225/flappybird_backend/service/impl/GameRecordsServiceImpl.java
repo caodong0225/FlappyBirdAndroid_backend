@@ -36,8 +36,10 @@ public class GameRecordsServiceImpl extends ServiceImpl<GameRecordsMapper, GameR
         } else {
             queryWrapper.orderByDesc(sort);
         }
-        // 添加查询条件
-        queryWrapper.eq("app_id", appId);
+        if(!(appId == null || appId.isEmpty())) {
+            // 添加查询条件
+            queryWrapper.eq("app_id", appId);
+        }
         IPage<?> result = this.page(new Page<>(page, size), queryWrapper);
         IPage<GameRecords> challengeInfoPage = new Page<>();
         challengeInfoPage.setTotal(result.getTotal());
@@ -46,6 +48,12 @@ public class GameRecordsServiceImpl extends ServiceImpl<GameRecordsMapper, GameR
         challengeInfoPage.setPages(result.getPages());
         challengeInfoPage.setRecords((List<GameRecords>) result.getRecords());
         return challengeInfoPage;
+    }
+
+    @Override
+    public Object[] getAppIds() {
+        // 获取所有唯一的appId
+        return this.lambdaQuery().select(GameRecords::getAppId).groupBy(GameRecords::getAppId).list().stream().map(GameRecords::getAppId).toArray();
     }
 
 

@@ -67,8 +67,9 @@ public class GameRecordsController {
                @Pattern(regexp = "asc|desc")
             @Parameter(name = "order", description = "排序方式，只能为asc或desc")
                String order,
-            @Parameter(name = "appId", description = "APP的ID", required = true)
-            @RequestParam @NotBlank @NotNull String appId
+            @Parameter(name = "appId", description = "APP的ID")
+            @RequestParam(defaultValue = "")
+            String appId
     ) {
         IPage<GameRecords> challengeInfoPage = gameRecordsService.getGameRecordsList(current, size, sort, order, appId);
         return new GeneralDataResponseDTO<>

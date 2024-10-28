@@ -25,4 +25,9 @@ public interface IGameRecordsService extends IService<GameRecords> {
      * 获取游戏记录列表
      */
     IPage<GameRecords> getGameRecordsList(Integer page, Integer size, String sort, String order, String appId);
+
+    /*
+     * 获取所有的appIds
+     */
+    Object[] getAppIds();
 }
